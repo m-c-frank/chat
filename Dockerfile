@@ -1,22 +1,32 @@
-FROM node:latest as base
+FROM node:alpine as build
 
 WORKDIR /app
 
-COPY . .
+COPY package.json package-lock.json ./ 
+RUN npm ci
 
-RUN npm i
+COPY . .
 RUN npm run build
+
+
+FROM python:3.11-slim-bookworm as base
 
 ENV ENV=prod
 
-ENV WEBUI_JWT_SECRET_KEY "human computers were replaced by computers. humans using computers will be replaced by computers"
+ENV OLLAMA_API_BASE_URL "/ollama/api"
 
-FROM python:3.11 as base
+ENV WEBUI_JWT_SECRET_KEY "SECRET_KEY"
+
+WORKDIR /app
+
+COPY --from=build /app/build /app/build
 
 WORKDIR /app/backend
 
-COPY ./backend .
+COPY ./backend/requirements.txt ./requirements.txt
 
 RUN pip3 install -r requirements.txt
+
+COPY ./backend .
 
 CMD [ "sh", "start.sh"]

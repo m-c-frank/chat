@@ -9,10 +9,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
 from apps.ollama.main import app as ollama_app
-from apps.openai.main import app as openai_app
 
 from apps.web.main import app as webui_app
-from apps.rag.main import app as rag_app
 
 from config import ENV
 
@@ -54,8 +52,6 @@ async def check_url(request: Request, call_next):
 app.mount("/api/v1", webui_app)
 
 app.mount("/ollama/api", ollama_app)
-app.mount("/openai/api", openai_app)
-app.mount("/rag/api/v1", rag_app)
 
 
 app.mount("/", SPAStaticFiles(directory="../build", html=True), name="spa-static-files")
